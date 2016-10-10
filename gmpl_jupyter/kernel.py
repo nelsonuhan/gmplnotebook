@@ -270,15 +270,16 @@ class SolveMagic(Magic):
                   Logs</a></li>
                 </ul>
 
-                <div id="Solution" class="tabcontent" style="display:block;overflow:hidden;">
+                <div id="_Solution" class="tabcontent" style="display:block;
+                    overflow:hidden;">
                     {0}
                 </div>
 
-                <div id="Model" class="tabcontent">
+                <div id="_Model" class="tabcontent">
                     <pre>{1}</pre>
                 </div>
 
-                <div id="Logs" class="tabcontent">
+                <div id="_Logs" class="tabcontent">
                     <pre>{2}</pre>
                 </div>
             '''
