@@ -140,6 +140,7 @@ class SolveMagic(Magic):
                 solution_html = solution_html.format(status, lp.obj.value)
 
                 solution_html += '''
+                    <div style="width:50%;float:left;">
                     <table style="border-style:hidden;">
                         <tr style="border-style:hidden;">
                             <th style="border-style:hidden;">Variable</th>
@@ -147,7 +148,7 @@ class SolveMagic(Magic):
                         </tr>
                 '''
 
-                solution_html_variable_row = '''
+                solution_html_table_row = '''
                         <tr style="border-style:hidden;">
                             <td style="border-style:hidden;">{0}</td>
                             <td style="text-align:right;border-style:hidden;">
@@ -156,13 +157,34 @@ class SolveMagic(Magic):
                 '''
 
                 for col in lp.cols:
-                    solution_html += solution_html_variable_row.format(
+                    solution_html += solution_html_table_row.format(
                         col.name, col.primal
                     )
 
                 solution_html += '''
                     </table>
+                    </div>
                 '''
+
+                if lp.kind is float:
+                    solution_html += '''
+                        <div style="width:50%;float:right;">
+                        <table style="border-style:hidden;">
+                            <tr style="border-style:hidden;">
+                                <th style="border-style:hidden;">Constraint</th>
+                                <th style="border-style:hidden;">Dual Value</th>
+                            </tr>
+                    '''
+
+                    for row in lp.rows:
+                        solution_html += solution_html_table_row.format(
+                            row.name, row.dual
+                        )
+
+                    solution_html += '''
+                        </table>
+                        </div>
+                    '''
 
             # Capture log file into a string
             log_text = ''
@@ -248,7 +270,7 @@ class SolveMagic(Magic):
                   Logs</a></li>
                 </ul>
 
-                <div id="Solution" class="tabcontent" style="display:block;">
+                <div id="Solution" class="tabcontent" style="display:block;overflow:hidden;">
                     {0}
                 </div>
 
