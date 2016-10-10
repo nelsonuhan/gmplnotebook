@@ -92,12 +92,16 @@ class SolveMagic(Magic):
                     # Turn off presolve to get information about infeasibility
                     #   and unboundedness
                     lp.simplex(msg_lev=msg_lev, presolve=simplex_presolve)
-                else:
+                elif lp.kind is int:
                     # MIP: branch-and-cut
                     lp.integer(msg_lev=msg_lev, presolve=True)
 
                 # Capture output file into a string
-                lp.write(sol=out_file.name)
+                if lp.kind is float:
+                    lp.write(sol=out_file.name)
+                elif lp.kind is int:
+                    lp.write(mip=out_file.name)
+
                 out_file.seek(0)
                 out_text = "\n=======================================\n"
                 for line in out_file:
@@ -167,7 +171,9 @@ class SolveMagic(Magic):
                 # Don't print GLPK log lines regarding which files
                 # the model and data are being read from
                 if not (line.startswith('Reading model section') or
-                        line.startswith('Reading data section')):
+                        line.startswith('Reading data section') or
+                        line.startswith('Writing basic solution') or
+                        line.startswith('Writing MIP solution')):
                     # Replace the temporary model file name
                     # with something more human-readable
                     # line = line.replace(model_file.name + ':',
