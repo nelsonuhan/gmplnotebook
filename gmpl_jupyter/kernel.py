@@ -296,7 +296,10 @@ class SolveMagic(Magic):
             out_file.close()
 
             # Expose GLPK object
-            self.kernel.lp = lp
+            try: 
+                self.kernel.lp = lp
+            except (NameError, UnboundLocalError):
+                pass
 
             # Erase model
             self.kernel.model_exists = False
