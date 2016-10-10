@@ -12,6 +12,7 @@ import subprocess
 from traitlets.config import Application
 from ipykernel.kernelapp import IPKernelApp
 from IPython.utils.tempdir import TemporaryDirectory
+
 _module_name = 'jupyter'
 
 
@@ -41,13 +42,6 @@ class GMPLJupyter(MetaKernel):
 
     @classmethod
     def run_as_main(cls):
-        """Launch or install a metakernel.
-
-        Modules implementing a metakernel subclass can use the following lines:
-
-            if __name__ == '__main__':
-                MetaKernelSubclass.run_as_main()
-        """
         GMPLJupyterApp.launch_instance(kernel_class=cls)
 
     def __init__(self, **kwargs):

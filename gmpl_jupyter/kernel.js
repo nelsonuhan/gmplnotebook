@@ -27,7 +27,6 @@ define([
         nb.kernel.execute(command);
       }
 
-
       var solve_handler = function () {
         // collect code, put in python workspace
         collect_code()  
@@ -66,7 +65,6 @@ define([
       /* This code was developed by Henri Gourvest and used with his permission. */
       CodeMirror.defineMode("mathprog",
         function(config, parserConfig) {
-
 
           function isalpha(c){
             var code = c.charCodeAt(0);
