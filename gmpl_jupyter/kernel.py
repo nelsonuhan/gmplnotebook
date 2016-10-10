@@ -171,8 +171,12 @@ class SolveMagic(Magic):
                         <div style="width:50%;float:right;">
                         <table style="border-style:hidden;">
                             <tr style="border-style:hidden;">
-                                <th style="border-style:hidden;">Constraint</th>
-                                <th style="border-style:hidden;">Dual Value</th>
+                                <th style="border-style:hidden;">
+                                    Constraint
+                                </th>
+                                <th style="border-style:hidden;">
+                                    Dual Value
+                                </th>
                             </tr>
                     '''
 
@@ -259,15 +263,24 @@ class SolveMagic(Magic):
             html_code = '''
             <body>
                 <ul class="tab">
-                <li><a href="#" style="text-decoration:none;"
-                  class="tablinks active" onclick="openTab(event, 'Solution')">
-                  Solution</a></li>
-                <li><a href="#" style="text-decoration:none;"
-                  class="tablinks" onclick="openTab(event, 'Model')">
-                  Model</a></li>
-                <li><a href="#" style="text-decoration:none;"
-                  class="tablinks" onclick="openTab(event, 'Logs')">
-                  Logs</a></li>
+                    <li>
+                        <a href="#" style="text-decoration:none;"
+                            class="tablinks active"
+                            onclick="openTab(event, '_Solution')">
+                            Solution</a>
+                    </li>
+                    <li>
+                        <a href="#" style="text-decoration:none;"
+                            class="tablinks"
+                            onclick="openTab(event, '_Model')">
+                            Model</a>
+                    </li>
+                    <li>
+                        <a href="#" style="text-decoration:none;"
+                            class="tablinks"
+                            onclick="openTab(event, '_Logs')">
+                            Logs</a>
+                    </li>
                 </ul>
 
                 <div id="_Solution" class="tabcontent" style="display:block;
@@ -325,7 +338,7 @@ class SolveMagic(Magic):
             out_file.close()
 
             # Expose GLPK object
-            try: 
+            try:
                 self.kernel.lp = lp
             except (NameError, UnboundLocalError):
                 pass
