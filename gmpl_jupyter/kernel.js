@@ -55,7 +55,7 @@ define([
           help:   'Solve model', 
           handler: solve_handler
       };
-      var solve_prefix = 'GLPK';
+      var solve_prefix = 'GMPL';
       var solve_action_name = 'Solve model';
 
       var solve = jupyter.actions.register(solve_action, solve_action_name, solve_prefix);

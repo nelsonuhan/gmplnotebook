@@ -19,20 +19,21 @@ _module_name = 'jupyter'
 class GMPLJupyter(MetaKernel):
     implementation = 'gmpl-jupyter'
     implementation_version = '0.1'
-    language = 'mathprog'
+    language = 'gmpl'
     language_version = '1.0'
     banner = "A GNU MathProg (GMPL) kernel for Jupyter"
     language_info = {
         'mimetype': 'text/plain',
         'name': 'GMPL/MathProg',
         'file_extension': '.mod',
+        'codemirror_mode': 'mathprog',
         'help_links': MetaKernel.help_links,
     }
     kernel_json = {
         "argv": [sys.executable, '-m', 'gmpl_jupyter',
                  '-f', '{connection_file}'],
         "display_name": "GMPL/MathProg",
-        "language": "mathprog",
+        "language": "gmpl",
         "mimetype": "text/plain",
         "name": "gmpl",
     }
