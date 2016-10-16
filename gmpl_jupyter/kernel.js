@@ -62,282 +62,129 @@ define([
 
       jupyter.toolbar.add_buttons_group([solve]);
 
-      /* This code was developed by Henri Gourvest and used with his permission. */
-      CodeMirror.defineMode("mathprog",
-        function(config, parserConfig) {
+      /* Structure loosely adapted from CodeMirror modes */
+      CodeMirror.defineMode("mathprog", function() {
+        function wordRegexp(words) {
+          return new RegExp("^(?:" + words.join("|") + ")\\b", "i");
+        }
 
-          function isalpha(c){
-            var code = c.charCodeAt(0);
-            return (code >= 0x41 && code <= 0x5A)|| (code >= 0x61 && code <= 0x7A) || (code == 0x5F)
+        var symbolicNames = new RegExp("^[_A-Za-z\xa1-\uffff][_A-Za-z0-9\xa1-\uffff]*");
+        var delimiters = new RegExp("^(\\+|\\-|\\*|/|\\*\\*|\\^|&|<|<=|=|==|>=|>|<>|!=|\\:=|\\:|!|<<|<-)");
+        var keywords = wordRegexp(['abs', 'and', 'atan', 'binary', 'by', 'card',
+          'ceil', 'check', 'cos', 'cross', 'cross', 'data', 'default', 'diff',
+          'dimen', 'display', 'div', 'else', 'end', 'exists', 'exp', 'floor',
+          'for', 'forall', 'if', 'integer', 'inter', 'Irand224', 'length',
+          'less', 'log', 'log10', 'max', 'maximize', 'min', 'minimize', 'mod',
+          'Normal', 'Normal01', 'not', 'or', 'param', 'printf', 'prod', 'round',
+          'set', 'setof', 'sin', 'solve', 'sqrt', 'subj to', 'subject to',
+          'substr', 'sum', 'symbolic', 'symdiff', 'then', 'tr', 'trunc',
+          'Uniform', 'Uniform01', 'union', 'var', 'within', 'table', 'out',
+          'gmtime', 'str2time', 'time2str']);
+
+        function tokenIndex(stream, state) {
+          if (stream.eatWhile(/[^}]/)) {
+            state.tokenize = tokenBase;
+            return 'def';
+          };
+          stream.skipToEnd();
+          return 'def';
+        }
+
+        function tokenSubscript(stream, state) {
+          if (stream.eatWhile(/[^\]]/)) {
+            state.tokenize = tokenBase;
+            return 'def';
+          };
+          stream.skipToEnd();
+          return 'def';
+        }
+
+        function tokenComment(stream, state) {
+          if (stream.match(/^.*\*\//)) {
+            state.tokenize = tokenBase;
+            return 'comment';
+          };
+          stream.skipToEnd();
+          return 'comment';
+        }
+
+        function tokenBase(stream, state) {
+          // whitespace
+          if (stream.eatSpace()) {
+            return null;
           }
 
-          function isalnum(c){
-            var code = c.charCodeAt(0);
-            return (code >= 0x41 && code <= 0x5A)|| (code >= 0x61 && code <= 0x7A) || (code >= 0x30 && code <= 0x39) || (code == 0x5F)
+          // single-line comments
+          if (stream.match(/^#/)) {
+            stream.skipToEnd();
+            return 'comment';
           }
 
-          function isnum(c){
-            var code = c.charCodeAt(0);
-            return (code >= 0x30 && code <= 0x39)
+          // block comments
+          if (stream.match(/\/\*/)) {
+            state.tokenize = tokenComment;
+            return tokenComment(stream, state);
           }
 
-          return {
-            startState: function(basecolumn) {
-              return {state: 0};
-            },
+          // numberic literals
+          if (stream.match(/^[0-9\.+-]/, false)) {
+            if (stream.match(/^[+-]?0x[0-9a-fA-F]+[ij]?/)) {
+              stream.tokenize = tokenBase;
+              return 'number'; };
+            if (stream.match(/^[+-]?\d*\.\d+([EeDd][+-]?\d+)?[ij]?/)) { return 'number'; };
+            if (stream.match(/^[+-]?\d+([EeDd][+-]?\d+)?[ij]?/)) { return 'number'; };
+          }
 
-            token: function(stream, state) {
-              if (stream.eatSpace()) return;
+          // string literals
+          if (stream.match(/^['"].*['"]/)) { 
+            return 'string'; 
+          };
+          // if (stream.match(/^'([^'], (''))*'/)) { return 'string'; } ;
 
-              function getToken(c){
-                if (isalpha(c)){
-                  tokstart = stream.start;
-                  stream.eatWhile(isalnum);
-                  var token = stream.string.slice(tokstart, stream.pos).toLowerCase();
-                  switch (token){
+          // keywords
+          if (stream.match(keywords)) { 
+            return 'keyword'; 
+          };
 
-                    default:
-                    return;
-                  }
-                } else if(isnum(c)) {
-                  stream.eatWhile(isnum);
-                  return "number";
-                }
-                return "error";
-              }
+          // indexing expressions
+          if (stream.match(/^{/)) {
+            state.tokenize = tokenIndex;
+            return null;
+          };
 
+          // subscripts
+          if (stream.match(/^\[/)) {
+            state.tokenize = tokenSubscript;
+            return null;
+          };
 
-              var c;
-              while (c = stream.next()){
-                switch (state.state){
-                  case 0:
-                  switch (c){
-                    case '/':
-                    state.state = 1; break;
-                    case '#':
-                    stream.skipToEnd();
-                    return "comment";
-                    case "'":
-                    case '"':
-                    if (!stream.eol()){
-                      state.stringChar = c;
-                      state.state = 4;
-                      break;
-                    } else {
-                      state.state = 0;
-                      return "error";
-                    }
-                    case '[':
-                    case ']':
-                    case '(':
-                    case ')':
-                    case '{':
-                    case '}':
-                    return "bracket";
-                    return "def";
-                    default:
-                    if (isnum(c)){
-                      var s = 0;
-                      stream.eatWhile(function(v){
-                        switch (s) {
-                          case 0:
-                          if (isnum(v)) return true;
-                          switch (v){
-                            case '.': s = 1; return true;
-                            case 'e':
-                            case 'E':
-                            s = 2; return true;
-                            default:
-                            return false;
-                          }
-                          case 1:
-                          if (isnum(v)) return true;
-                          switch (v){
-                            case 'e':
-                            case 'E':
-                            s = 2; return true;
-                            default:
-                            return false;
-                          }
-                          case 2:
-                          if (isnum(v)){
-                            s = 3;
-                            return true;
-                          }
-                          switch (v){
-                            case '+':
-                            case '-':
-                            s = 3;
-                            return true;
-                            default:
-                            return false;
-                          }
-                          case 3:
-                          return isnum(v);
-                        }
-                      })
-                      return "number";
-                    } else if (isalpha(c)) {
-                      var p = 0;
-                      stream.eatWhile(
-                        function(v){
-                          switch(p){
-                            case 0:
-                            if (isalnum(v)) return true;
-                            if (v == '.' && stream.current() == 's'){
-                              p = 1;
-                              return true;
-                            }
-                            return false;
-                            case 1:
-                            p = 2;
-                            return (v == 't');
-                            case 2:
-                            return (v == '.')
-                          }
+          // symbolic names (variables, sets, params)
+          if (stream.match(symbolicNames)) { 
+            return 'variable'; 
+          };
 
-                        }
-                        );
-                      var token = stream.current();
-                      switch (token) {
-                        case 'param':
-                        case 'var':
-                        case 'maximize':
-                        case 'minimize':
-                        case 's.t.':
-                        case 'data':
-                        case 'end':
-                        case 'set':
-                        case 'table':
-                        case 'subject':
-                        case 'to':
-                        case 'subj':
-                        case 'check':
-                        case 'display':
-                        case 'for':
-                        return "keyword";
-                        case 'dimen':
-                        case 'default':
-                        case 'integer':
-                        case 'binary':
-                        case 'logical':
-                        case 'symbolic':
-                        case 'OUT':
-                        case 'IN':
-                        case 'and':
-                        case 'by':
-                        case 'cross':
-                        case 'diff':
-                        case 'div':
-                        case 'else':
-                        case 'if':
-                        case 'in':
-                        case 'Infinity':
-                        case 'inter':
-                        case 'less':
-                        case 'mod':
-                        case 'not':
-                        case 'or':
-                        case 'symdiff':
-                        case 'then':
-                        case 'union':
-                        case 'within':
-                        return "atom";
-                        case 'sum':
-                        case 'prod':
-                        case 'min':
-                        case 'max':
-                        return "def";
-                        case 'printf':
-                        return "builtin";
-                        case 'abs':
-                        case 'atan':
-                        case 'card':
-                        case 'ceil':
-                        case 'cos':
-                        case 'exp':
-                        case 'floor':
-                        case 'gmtime':
-                        case 'length':
-                        case 'log':
-                        case 'log10':
-                        case 'max':
-                        case 'min':
-                        case 'round':
-                        case 'sin':
-                        case 'sqrt':
-                        case 'str2time':
-                        case 'trunc':
-                        case 'Irand224':
-                        case 'Uniform01':
-                        case 'Uniform':
-                        case 'Normal01':
-                        case 'Normal':
-                        return "def"
-                      }
-                      return
-                    }
-                    return;
-                  }
-                  break;
-                  case 1:
-                  if (c == '*'){
-                    state.state = 2;
-                  }
-                  else {
-                    state.state = 0
-                    return "operator";
-                  }
-                  break;
-                  case 2:
-                  if (c == '*') state.state=3; break;
-                  case 3:
-                  if (c == '/'){
-                    state.state = 0;
-                    return "comment";
-                  } else
-                  state.state = 2;
-                  break;
-                  case 4:
-                  if (c == state.stringChar){
-                    if (!stream.eol()){
-                      state.state = 5;
-                      break;
-                    } else {
-                      state.state = 0;
-                      delete(state.stringChar);
-                      return "string";
-                    }
-                  } else if (stream.eol()) {
-                    state.state = 0;
-                    delete(state.stringChar);
-                    return "error";
-                  }
-                  break;
-                  case 5:
-                  if (c != state.stringChar){
-                    stream.pos--;
-                    state.state = 0;
-                    delete(state.stringChar);
-                    return "string";
-                  } else {
-                    if (!stream.eol()){
-                      state.state = 4;
-                      break;
-                    } else {
-                      state.state = 0;
-                      delete(state.stringChar);
-                      return "error";
-                    }
+          // delimiters
+          if (stream.match(delimiters)) {
+            return 'operator';
+          };
 
-                  }
-                }
-              }
-              if (state.state == 2) return "comment"
-            }
+          // Handle non-detected items
+          stream.next();
+          return null;
         };
-      }
-      );
-}
+
+        return {
+          startState: function() {
+            return {
+              tokenize: tokenBase
+            };
+          },
+
+          token: function(stream, state) {
+            return state.tokenize(stream, state);
+          }
+        };
+      });
+    }
   };
 });
