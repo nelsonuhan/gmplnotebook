@@ -29,7 +29,7 @@ define([
 
       var solve_handler = function () {
         // collect code, put in python workspace
-        collect_code()  
+        collect_code();  
 
         // get rid of all existing %solve cells
         cells = nb.get_cells();
