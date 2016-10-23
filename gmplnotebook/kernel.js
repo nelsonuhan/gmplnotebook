@@ -62,7 +62,11 @@ define([
 
       jupyter.toolbar.add_buttons_group([solve]);
 
-      /* Structure loosely adapted from CodeMirror modes */
+      /* 
+       * CodeMirror definition
+       * Originally used code developed by Henri Gourvest
+       * This code is loosely adapted from CodeMirror modes 
+       */
       CodeMirror.defineMode("mathprog", function() {
         function wordRegexp(words) {
           return new RegExp("^(?:" + words.join("|") + ")\\b", "i");

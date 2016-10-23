@@ -16,8 +16,8 @@ from IPython.utils.tempdir import TemporaryDirectory
 _module_name = 'jupyter'
 
 
-class GMPLJupyter(MetaKernel):
-    implementation = 'gmpl-jupyter'
+class GMPLNotebook(MetaKernel):
+    implementation = 'gmplnotebook'
     implementation_version = '0.1'
     language = 'gmpl'
     language_version = '1.0'
@@ -30,7 +30,7 @@ class GMPLJupyter(MetaKernel):
         'help_links': MetaKernel.help_links,
     }
     kernel_json = {
-        "argv": [sys.executable, '-m', 'gmpl_jupyter',
+        "argv": [sys.executable, '-m', 'gmplnotebook',
                  '-f', '{connection_file}'],
         "display_name": "GMPL/MathProg",
         "language": "gmpl",
@@ -43,10 +43,10 @@ class GMPLJupyter(MetaKernel):
 
     @classmethod
     def run_as_main(cls):
-        GMPLJupyterApp.launch_instance(kernel_class=cls)
+        GMPLNotebookApp.launch_instance(kernel_class=cls)
 
     def __init__(self, **kwargs):
-        super(GMPLJupyter, self).__init__(**kwargs)
+        super(GMPLNotebook, self).__init__(**kwargs)
         self.register_magics(SolveMagic)
 
     def get_usage(self):
@@ -350,7 +350,7 @@ class SolveMagic(Magic):
             print("Please use the solve button in the toolbar.")
 
 
-class GMPLJupyterApp(IPKernelApp):
+class GMPLNotebookApp(IPKernelApp):
     # This is a hacky re-write of MetaKernelApp to accomodate kernel.js
     @property
     def subcommands(self):
@@ -376,7 +376,7 @@ class GMPLJupyterApp(IPKernelApp):
 
                     # Write kernel.js
                     filename = 'kernel.js'
-                    data = pkgutil.get_data('gmpl_jupyter', filename)
+                    data = pkgutil.get_data('gmplnotebook', filename)
                     with open(os.path.join(dirname, filename), 'wb') as f:
                             f.write(data)
 
