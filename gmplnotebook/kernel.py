@@ -63,26 +63,33 @@ class SolveMagic(Magic):
     def line_solve(self):
         if self.kernel.model_exists:
             # Terminal hook helper function
-            def term_hook(output):
-                log_file.write(output)
-            env.term_hook = term_hook
+            glpk.env.term_on = True 
+            glpk.env.term_hook = lambda output: log_file.write(output)
 
-            # Create temporary log file
-            log_file = NamedTemporaryFile(mode='w+t', suffix='.log')
+            # Create temporary directory
+            temp_dir = tempfile.mkdtemp()
 
-            # Create temporary output file
-            out_file = NamedTemporaryFile(mode='w+t', suffix='.out')
+            # Create base filename
+            base_name = uuid.uuid4().hex
 
-            # Create temporary model file
-            model_file = NamedTemporaryFile(mode='w+t', suffix='.mod')
+            # Create output file name
+            out_file_name = os.path.join(temp_dir, base_name + '.out') 
+
+            # Create log file
+            log_file_name = os.path.join(temp_dir, base_name + '.log')
+            log_file = open(log_file_name, 'w')
+
+            # Create model file
+            model_file_name = os.path.join(temp_dir, base_name + '.mod')
+            model_file = open(model_file_name, 'w')
             model_file.write(self.kernel.model)
-            model_file.seek(0)
+            model_file.close()
 
             # Load .mod file into GLPK
             try:
-                lp = LPX(gmp=(model_file.name, None, None))
+                lp = glpk.LPX(gmp=(model_file_name, None, None))
             except RuntimeError:
-                pass
+                return
             else:
                 # Solve the .mod file using the simplex method
                 msg_lev = lp.MSG_ALL
@@ -96,16 +103,18 @@ class SolveMagic(Magic):
                     # MIP: branch-and-cut
                     lp.integer(msg_lev=msg_lev, presolve=True)
 
-                # Capture output file into a string
+                # Write output file 
                 if lp.kind is float:
-                    lp.write(sol=out_file.name)
+                    lp.write(sol=out_file_name)
                 elif lp.kind is int:
-                    lp.write(mip=out_file.name)
+                    lp.write(mip=out_file_name)
 
-                out_file.seek(0)
+                # Read contents of output file into a string
+                out_file = open(out_file_name, 'r')
                 out_text = "\n=======================================\n"
                 for line in out_file:
                     out_text += line
+                out_file.close()    
 
                 # Determine status
                 if lp.status == 'opt':
@@ -189,10 +198,13 @@ class SolveMagic(Magic):
                         </table>
                         </div>
                     '''
+            finally:
+                # Close log file
+                log_file.close()
 
-            # Capture log file into a string
+            # Read log file into a string
+            log_file = open(log_file_name, 'r')
             log_text = ''
-            log_file.seek(0)
             for line in log_file:
                 # Don't print GLPK log lines regarding which files
                 # the model and data are being read from
@@ -205,6 +217,7 @@ class SolveMagic(Magic):
                     # line = line.replace(model_file.name + ':',
                                         # "Error around line ")
                     log_text += line
+            log_file.close()
 
             # Capture model with line numbers
             model_with_line_numbers = ''
@@ -332,11 +345,6 @@ class SolveMagic(Magic):
 
             self.kernel.Display(HTML(css_code + html_code + js_code))
 
-            # Close the temporary files
-            model_file.close()
-            log_file.close()
-            out_file.close()
-
             # Expose GLPK object
             try:
                 self.kernel.lp = lp
@@ -346,6 +354,9 @@ class SolveMagic(Magic):
             # Erase model
             self.kernel.model_exists = False
             self.kernel.model = ''
+
+            # Remove the temporary files
+            shutil.rmtree(temp_dir)
         else:
             print("Please use the solve button in the toolbar.")
 
