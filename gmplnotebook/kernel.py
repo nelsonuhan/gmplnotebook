@@ -1,14 +1,16 @@
 from __future__ import print_function
 
-from IPython.display import HTML
-from metakernel import MetaKernel, Magic
-from glpk import LPX, env
-from tempfile import NamedTemporaryFile
+import glpk
+import tempfile
 import sys
 import os
 import json
 import pkgutil
+import shutil
 import subprocess
+import uuid
+from IPython.display import HTML
+from metakernel import MetaKernel, Magic
 from traitlets.config import Application
 from ipykernel.kernelapp import IPKernelApp
 from IPython.utils.tempdir import TemporaryDirectory
@@ -20,7 +22,7 @@ class GMPLNotebook(MetaKernel):
     implementation = 'gmplnotebook'
     implementation_version = '0.1'
     language = 'gmpl'
-    language_version = '1.0'
+    language_version = 'December 2010'
     banner = "A GNU MathProg (GMPL) kernel for Jupyter"
     language_info = {
         'mimetype': 'text/plain',
