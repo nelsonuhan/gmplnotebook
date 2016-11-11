@@ -7,6 +7,7 @@ setup(
     url='https://github.com/nelsonuhan/gmplnotebook',
     author='Nelson Uhan',
     author_email='nelson@uhan.me',
+    license='GNU GPLv3',
     packages=['gmplnotebook'],
     package_data={
         '': ['kernel.js'],
