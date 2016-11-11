@@ -3,8 +3,8 @@ from setuptools import setup
 setup(
     name='gmplnotebook',
     version='0.1',
-    description='A GNU MathProg (GMPL) kernel for Jupyter',
-    url='http://nelson.uhan.me',
+    description='A GMPL/MathProg kernel+extension for Jupyter',
+    url='https://github.com/nelsonuhan/gmplnotebook',
     author='Nelson Uhan',
     author_email='nelson@uhan.me',
     packages=['gmplnotebook'],
