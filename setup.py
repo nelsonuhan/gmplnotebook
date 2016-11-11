@@ -11,5 +11,5 @@ setup(
     package_data={
         '': ['kernel.js'],
     },
-    install_requires=['glpk>=0.4.2', 'metakernel'],
+    install_requires=['glpk>=0.4.2', 'metakernel', 'jupyter'],
 )
