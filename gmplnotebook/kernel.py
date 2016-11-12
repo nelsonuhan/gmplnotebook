@@ -129,9 +129,9 @@ class SolveMagic(Magic):
                 elif lp.status == 'infeas':
                     status = 'Solution found is infeasible'
                 elif lp.status == 'nofeas':
-                    status = 'LP is infeasible'
+                    status = 'Model is infeasible'
                 elif lp.status == 'unbnd':
-                    status = 'LP is unbounded'
+                    status = 'Model is unbounded'
 
                 # Form solution HTML
                 solution_html = '''
