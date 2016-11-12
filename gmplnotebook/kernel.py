@@ -91,7 +91,7 @@ class SolveMagic(Magic):
             try:
                 lp = glpk.LPX(gmp=(model_file_name, None, None))
             except RuntimeError:
-                return
+                pass
             else:
                 # Solve the .mod file using the simplex method
                 msg_lev = lp.MSG_ALL
@@ -216,8 +216,8 @@ class SolveMagic(Magic):
                         line.startswith('Writing MIP solution')):
                     # Replace the temporary model file name
                     # with something more human-readable
-                    # line = line.replace(model_file.name + ':',
-                                        # "Error around line ")
+                    line = line.replace(model_file_name + ':',
+                                        "Line ")
                     log_text += line
             log_file.close()
 
