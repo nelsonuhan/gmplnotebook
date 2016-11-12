@@ -347,12 +347,6 @@ class SolveMagic(Magic):
 
             self.kernel.Display(HTML(css_code + html_code + js_code))
 
-            # Expose GLPK object
-            try:
-                self.kernel.lp = lp
-            except (NameError, UnboundLocalError):
-                pass
-
             # Erase model
             self.kernel.model_exists = False
             self.kernel.model = ''
