@@ -1,9 +1,13 @@
-from setuptools import setup
+import setuptools
+import pypandoc
 
-setup(
+long_description = pypandoc.convert('README.md', 'rst')
+
+setuptools.setup(
     name='gmplnotebook',
-    version='0.1.1',
+    version='0.1.2',
     description='A GMPL/MathProg kernel+extension for Jupyter',
+    long_description=long_description,
     url='https://github.com/nelsonuhan/gmplnotebook',
     author='Nelson Uhan',
     author_email='nelson@uhan.me',
