@@ -1,7 +1,10 @@
 import setuptools
-import pypandoc
 
-long_description = pypandoc.convert('README.md', 'rst')
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
+except (IOError, ImportError):
+    long_description = ''
 
 setuptools.setup(
     name='gmplnotebook',
