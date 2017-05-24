@@ -8,7 +8,7 @@ except (IOError, ImportError):
 
 setuptools.setup(
     name='gmplnotebook',
-    version='0.1.2',
+    version='0.1.3',
     description='A GMPL/MathProg kernel+extension for Jupyter',
     long_description=long_description,
     url='https://github.com/nelsonuhan/gmplnotebook',
